@@ -1,0 +1,23 @@
+.artist-spotlight{padding-block:90px;border-bottom:1px solid #ffffff16}
+.artist-spotlight-intro{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-bottom:48px}
+.artist-spotlight-intro .eyebrow{margin-bottom:22px}
+.artist-spotlight h2{font-size:clamp(58px,6vw,88px)}
+.artist-location{font-size:12px;margin-top:20px}
+.artist-story>p{max-width:570px;font-size:15px}
+.artist-inspiration{border-left:1px solid var(--gold);padding-left:22px;margin:25px 0}
+.artist-inspiration .eyebrow{color:var(--gold);margin-bottom:10px}
+.artist-inspiration>p:last-child{font-size:14px}
+.artist-artworks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.artist-artworks figure{margin:0;min-width:0}
+.artwork-image{display:flex;align-items:center;justify-content:center;aspect-ratio:1/1;background:#151411;border:1px solid #ffffff18;padding:14px}
+.artwork-image img{width:100%;height:100%;object-fit:contain}
+.artist-artworks figcaption{padding-top:20px}
+.artist-artworks h3{font-size:31px}
+.artist-artworks h3 a{display:inline-flex;align-items:center;gap:12px}
+.artist-artworks h3 svg{color:var(--gold)}
+.artist-artworks figcaption p{font-size:11px;margin-top:8px}
+.artist-credits{display:flex;justify-content:space-between;align-items:center;gap:25px;margin-top:35px}
+.artist-credits>p{max-width:680px}
+.artist-credits>a{white-space:nowrap}
+@media(max-width:900px){.artist-spotlight-intro{gap:35px}.artist-artworks{gap:18px}.artwork-image{padding:8px}}
+@media(max-width:600px){.artist-spotlight{padding-block:55px}.artist-spotlight-intro{grid-template-columns:1fr;gap:26px;margin-bottom:32px}.artist-spotlight h2{font-size:64px}.artist-artworks{grid-template-columns:1fr;gap:34px}.artwork-image{aspect-ratio:auto;min-height:220px;padding:12px}.artwork-image img{height:auto;max-height:480px}.artist-credits{flex-direction:column;align-items:flex-start}.artist-story>p{font-size:14px}}
