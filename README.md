@@ -1,0 +1,46 @@
+# Artist Manager
+
+A gallery-style workspace for artists to find real grants, residencies and fellowships, understand requirements, prepare applications, and track their practice.
+
+## Run locally
+
+Use Node.js 22.12+ (Node 24 recommended), then:
+
+```sh
+npm ci
+npm run dev
+```
+
+Open the local URL printed by Vite. `npm run build` typechecks and produces `dist/`; `npm test` runs focused domain tests. `npm run preview` serves a production build.
+
+## Included
+
+- 24 real opportunities with provider links, dated source review, fees and deadline caveats; no fictional listings.
+- Profile-based requirement percentages, explicit missing facts and provisional eligibility, highest-match-first discovery.
+- Search, type/discipline/window/eligibility/amount filters, saved opportunities, and alternate sorting.
+- Editable artist profile, project facts, bio, statement and up to eight compressed work-sample thumbnails.
+- One application workspace per opportunity with editable drafts, checklist, selected samples and notes.
+- Board and deadline-sorted list; keyboard-accessible status menus and supplemental drag/drop.
+- Versioned browser storage; failed writes remain visible and corrupt saved data is not silently overwritten.
+- Static-host-safe hash routes and relative assets for GitHub Pages.
+
+## Scope and data
+
+Portfolio and application information stays in localStorage on the current browser. There are no accounts or cross-device synchronization. Clearing browser data removes local work. Original work-sample files are not stored; only bounded thumbnails are retained. Third-party fonts and a hero video are loaded externally.
+
+The catalog reflects source review on **2026-10-24**, not continuous live verification. Deadline logic uses exact source times where established and provider local calendar dates otherwise; unspecified cutoff times remain uncertain. Opening months are not converted into exact dates. Availability and eligibility are separate.
+
+Requirement match = rounded percentage of distinct reviewed applicable rules met. Unknown facts stay in the denominator with no points. Not all funder rules have been normalized; such percentages are provisional and never certify complete eligibility or predict awards. Known mandatory failures rank last. Amount sorting uses only established advertised cash amounts; historical/unconfirmed and in-kind awards have no fabricated value.
+
+Draft assistance currently assembles selected existing portfolio text locally for the artist to edit. **Live AI drafting is planned, not connected.** It requires a separate secure backend and provider configuration; never place API keys in frontend code. No application is submitted to a funder through this app.
+
+## Validation
+
+`npm test` covers independent match arithmetic, missing facts, mandatory failures/ranking, deduplication, source-date boundaries and saved-data preservation/rejection. Kane browser journey verification has not yet run; it remains pending the required review checkpoints. See project notes for future run evidence. Do not infer browser coverage from unit tests.
+
+## Hosting
+
+The lead configures GitHub Pages through `.github/workflows/`. Hash routes support page refresh on a static host. Only the production `dist/` artifact should be served; private browser data is never included in the build.
+
+Live site: https://isledeli.github.io/artist-manager/
+Repository: https://github.com/isleDeli/artist-manager
