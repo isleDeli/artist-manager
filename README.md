@@ -44,3 +44,7 @@ The lead configures GitHub Pages through `.github/workflows/`. Hash routes suppo
 
 Live site: https://isledeli.github.io/artist-manager/
 Repository: https://github.com/isleDeli/artist-manager
+
+## Demo with Taylor Smalls
+
+Open Portfolio and select **Load Taylor’s demo portfolio**. This loads a public-source bio/practice summary and three credited artworks into the app’s normal profile, matching and application flows. Unknown private eligibility facts stay blank. Demo changes persist in a separate browser workspace; **Return to my workspace** restores your personal profile and drafts. This is demonstration data, not Taylor’s own account or actual applications. See docs/demo-profile.md for sources.
