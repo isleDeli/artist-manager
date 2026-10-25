@@ -47,3 +47,18 @@ describe('grant writer grounding and privacy', () => {
     expect(() => normalizeBackendUrl('https://example.com/api')).toThrow();
   });
 });
+
+
+describe('catalog requirement transport IDs', () => {
+  it('keeps every real opportunity within backend identifier limits without changing stored rule IDs', () => {
+    const profile = emptyStore().profile;
+    for (const op of opportunities) {
+      const originalIds = op.rules.map(rule => rule.id);
+      const request = buildGrantRequest(op, profile, [], { background: true, bio: true, statement: true, project: true }, { question: 'Describe the project', guidelines: '', wordLimit: 500, demo: true });
+      expect(request.requirements.every(rule => rule.id.length > 0 && rule.id.length <= 120)).toBe(true);
+      expect(new Set(request.requirements.map(rule => rule.id)).size).toBe(request.requirements.length);
+      expect(request.artist.facts.every(fact => fact.id.length <= 120)).toBe(true);
+      expect(op.rules.map(rule => rule.id)).toEqual(originalIds);
+    }
+  });
+});

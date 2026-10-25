@@ -41,9 +41,9 @@ export function buildGrantRequest(op: Opportunity, profile: Profile, samples: Wo
   }
   for (const work of samples) add('work:' + work.id, 'Selected work sample metadata', [work.title, work.medium, work.year].filter(Boolean).join(' · '));
   const available = new Set(facts.map(fact => fact.id));
-  const requirements = computeMatch(op, profile).results.map(({ rule, state }) => {
+  const requirements = computeMatch(op, profile).results.map(({ rule, state }, index) => {
     const id = rule.field ? rule.field : 'requirement:' + rule.id;
-    return { id: rule.id, label: rule.label, state: available.has(id) ? state : 'unknown' as const, evidenceFactIds: available.has(id) && state === 'met' ? [id] : [] };
+    return { id: 'requirement-' + (index + 1), label: rule.label, state: available.has(id) ? state : 'unknown' as const, evidenceFactIds: available.has(id) && state === 'met' ? [id] : [] };
   });
   return {
     artist: { name: options.background ? profile.name : '', facts },
