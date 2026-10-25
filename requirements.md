@@ -160,3 +160,5 @@ TEST-TARGET-01: The live frontend is https://isledeli.github.io/artist-manager/ 
 
 AI-DEMO-01: At the user's request, remove backend URL, access-code and provider setup fields from the artist UI. Draft application uses the configured server directly. The key remains server-only.
 AI-DEMO-02: Temporarily allow public demo drafting from the permitted site, with origin checks and per-instance concurrency/rate/daily limits. This supersedes artist-facing access-code gating for the temporary demo; usage is billed to the owner. Preserve all grounding, consent and saved-draft protections.
+
+AI-13: Combine the saved application Project description, Artist statement and Budget narrative into a polished proposed answer by default, with a visible input summary and an opt-out. Keep all source sections intact until explicit insertion/replacement. Improve clarity, transitions and wording without altering facts, amounts or project scope; flag conflicts and missing information. Do not include AI settings as artist evidence.

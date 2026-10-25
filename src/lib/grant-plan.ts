@@ -14,7 +14,7 @@ export type GrantResult = {
   strategy: string; draft: string; coverage: { requirementId: string; status: 'addressed' | 'not_addressed'; evidenceFactIds: string[]; excerpt: string }[];
   questions: string[]; warnings: string[]; model: string; wordCount: number;
 };
-export type ContextOptions = { background: boolean; bio: boolean; statement: boolean; project: boolean };
+export type ContextOptions = { background: boolean; bio: boolean; statement: boolean; project: boolean; applicationDrafts?: boolean };
 const backgroundLabels: Record<string, string> = {
   name: 'Artist name', city: 'City or studio location', county: 'County answer', country: 'Country answer',
   medium: 'Primary medium', careerStage: 'Career stage', age: 'Age', yearsPractice: 'Years of mature practice',
@@ -24,7 +24,7 @@ const backgroundLabels: Record<string, string> = {
   website: 'Artist website (reference only)', cv: 'CV link (reference only; contents not fetched)',
 };
 
-export function buildGrantRequest(op: Opportunity, profile: Profile, samples: WorkSample[], options: ContextOptions, settings: { question: string; guidelines: string; wordLimit: number; demo: boolean }): GrantRequest {
+export function buildGrantRequest(op: Opportunity, profile: Profile, samples: WorkSample[], options: ContextOptions, settings: { question: string; guidelines: string; wordLimit: number; demo: boolean }, applicationDrafts: Record<string, string> = {}): GrantRequest {
   const facts: GrantFact[] = [];
   const add = (id: string, label: string, value: string) => { if (value.trim()) facts.push({ id, label, value: value.trim() }); };
   if (options.background) {
@@ -38,6 +38,11 @@ export function buildGrantRequest(op: Opportunity, profile: Profile, samples: Wo
     add('projectDescription', 'Proposed project description', profile.projectDescription);
     add('projectBudget', 'Proposed budget', profile.projectBudget);
     add('projectTimeline', 'Proposed timeline', profile.projectTimeline);
+  }
+  if (options.applicationDrafts !== false) {
+    add('application-project', 'Saved application project description — primary source for this application', applicationDrafts['Project description'] || '');
+    add('application-statement', 'Saved application artist statement — primary source for this application', applicationDrafts['Artist statement'] || '');
+    add('application-budget', 'Saved application budget narrative — preserve all figures and funding purposes', applicationDrafts['Budget narrative'] || '');
   }
   for (const work of samples) add('work:' + work.id, 'Selected work sample metadata', [work.title, work.medium, work.year].filter(Boolean).join(' · '));
   const available = new Set(facts.map(fact => fact.id));

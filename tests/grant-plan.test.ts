@@ -62,3 +62,30 @@ describe('catalog requirement transport IDs', () => {
     }
   });
 });
+
+
+describe('application section synthesis', () => {
+  const op = opportunities[0];
+  const options = { background: false, bio: false, statement: false, project: false, applicationDrafts: true };
+  const settings = { question: 'Combine the supplied material', guidelines: '', wordLimit: 500, demo: true };
+  it('includes the actual saved project, statement and budget instead of only portfolio text', () => {
+    const sections = {
+      'Project description': 'Create six paintings for an Oakland exhibition.',
+      'Artist statement': 'My work explores belonging through layered pigments.',
+      'Budget narrative': 'Request $8,500: $6,000 artist fees and $2,500 materials.',
+      'ai:guidelines': 'Do not send this setting as artist evidence.',
+    };
+    const before = { ...sections };
+    const request = buildGrantRequest(op, emptyStore().profile, [], options, settings, sections);
+    expect(request.artist.facts.map(fact => fact.id)).toEqual(['application-project', 'application-statement', 'application-budget']);
+    expect(request.artist.facts.map(fact => fact.value)).toEqual([sections['Project description'], sections['Artist statement'], sections['Budget narrative']]);
+    expect(request.artist.facts.some(fact => fact.value.includes('Do not send'))).toBe(false);
+    expect(sections).toEqual(before);
+    expect(request.requirements.every(rule => rule.state === 'unknown')).toBe(true);
+  });
+  it('allows excluding application sections and does not fabricate missing ones', () => {
+    const sections = { 'Project description': 'My saved project', 'Budget narrative': '' };
+    expect(buildGrantRequest(op, emptyStore().profile, [], options, settings, sections).artist.facts).toHaveLength(1);
+    expect(buildGrantRequest(op, emptyStore().profile, [], { ...options, applicationDrafts: false }, settings, sections).artist.facts).toEqual([]);
+  });
+});
