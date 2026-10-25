@@ -1,3 +1,4 @@
+import { GRANT_API_URL } from '../config';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Sparkles } from 'lucide-react';
@@ -8,7 +9,7 @@ import '../grant-writer.css';
 let sessionAccessCode = '';
 const apiStorageKey = 'artist-manager:grant-api-url';
 function initialEndpoint() {
-  try { return localStorage.getItem(apiStorageKey) || import.meta.env.VITE_GRANT_API_URL || ''; } catch { return import.meta.env.VITE_GRANT_API_URL || ''; }
+  try { return localStorage.getItem(apiStorageKey) || import.meta.env.VITE_GRANT_API_URL || GRANT_API_URL; } catch { return import.meta.env.VITE_GRANT_API_URL || GRANT_API_URL; }
 }
 type Props = {
   op: Opportunity; profile: Profile; app: Application; samples: WorkSample[]; section: string; draft: string; demo: boolean;
