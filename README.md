@@ -36,7 +36,7 @@ The workspace includes a professional AI grant writer with a requirement plan, p
 
 ## Validation
 
-`npm test` covers independent match arithmetic, missing facts, mandatory failures/ranking, deduplication, source-date boundaries and saved-data preservation/rejection. Kane browser journey verification has not yet run; it remains pending the required review checkpoints. See project notes for future run evidence. Do not infer browser coverage from unit tests.
+`npm test` covers independent match arithmetic, missing facts, mandatory failures/ranking, deduplication, source-date boundaries and saved-data preservation/rejection. Two Kane browser journeys have passed: navigation smoke and the demo application workflow. Saved tests, replay recordings and instructions are in [tests/kane](tests/kane/README.md). These runs do not establish complete requirement coverage; assurance review and live AI browser verification remain pending.
 
 ## Hosting
 

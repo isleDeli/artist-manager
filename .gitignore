@@ -5,8 +5,10 @@ dist/
 !.env.example
 .context/
 .testmuai/
+*.evidence
 *.evidence/
 .DS_Store
 *.tsbuildinfo
 
 *.log
+launch/
