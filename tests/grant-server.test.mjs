@@ -310,3 +310,27 @@ describe('secure grant writer endpoint', () => {
     expect(provider).toHaveBeenCalledTimes(6);
   });
 });
+
+describe('temporary public demo mode', () => {
+  it('drafts from the permitted website without artist credentials', async () => {
+    const {base,provider}=await start({publicDemoMode:true,accessCode:''});
+    const response=await post(base,input(),{headers:{Authorization:''}});
+    expect(response.status).toBe(200);
+    expect(provider).toHaveBeenCalledTimes(1);
+    expect((await (await fetch(base+'/health')).json()).publicDemo).toBe(true);
+  });
+  it('rejects public requests without an origin or from another site',async()=>{
+    const {base,provider}=await start({publicDemoMode:true});
+    expect((await fetch(base+'/api/grant-draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input())})).status).toBe(403);
+    expect((await post(base,input(),{headers:{Origin:'https://other.example'}})).status).toBe(403);
+    expect(provider).not.toHaveBeenCalled();
+  });
+  it('enforces a per-instance daily demo limit',async()=>{
+    const {base,provider}=await start({publicDemoMode:true,dailyLimit:1});
+    expect((await post(base)).status).toBe(200);
+    const limited=await post(base);
+    expect(limited.status).toBe(429);
+    expect((await limited.json()).error.code).toBe('daily_limit');
+    expect(provider).toHaveBeenCalledTimes(1);
+  });
+});

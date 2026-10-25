@@ -337,6 +337,8 @@ function validOrigin(value) {
 /** Configuration is server-owned. Inject fetch/now/timeoutMs only in trusted tests, never from the request. */
 export function createServer(options = {}) {
   const config = {
+    publicDemoMode: options.publicDemoMode === true,
+    dailyLimit: Number.isInteger(options.dailyLimit) && options.dailyLimit > 0 ? options.dailyLimit : 25,
     apiKey: typeof options.apiKey === 'string' ? options.apiKey.trim() : '',
     accessCode: typeof options.accessCode === 'string' ? options.accessCode : '',
     model: typeof options.model === 'string' && options.model.trim() ? options.model.trim() : DEFAULT_MODEL,
@@ -346,11 +348,12 @@ export function createServer(options = {}) {
     now: options.now ?? Date.now,
     fetch: options.fetch ?? globalThis.fetch
   };
-  const configured = !!config.apiKey && config.accessCode.length >= 16 && validOrigin(config.allowedOrigin);
+  const configured = !!config.apiKey && (config.publicDemoMode || config.accessCode.length >= 16) && validOrigin(config.allowedOrigin);
   const origins = new Set([config.allowedOrigin]);
   if (config.allowLocalhost) { origins.add('http://localhost:5173'); origins.add('http://127.0.0.1:5173'); }
   let active = false;
   let admissions = [];
+  let daily = { day: '', count: 0 };
   const server = http.createServer(async (request, response) => {
     response.setHeader('Content-Type', 'application/json; charset=utf-8');
     response.setHeader('Cache-Control', 'no-store');
@@ -372,7 +375,7 @@ export function createServer(options = {}) {
       const path = request.url?.split('?')[0];
       if (path === '/health') {
         if (request.method !== 'GET') throw new ServiceError(405, 'method_not_allowed', 'Use GET for service health.');
-        send(200, { status: 'ok', configured });
+        send(200, { status: 'ok', configured, ...(config.publicDemoMode ? { publicDemo: true } : {}) });
         return;
       }
       if (path !== '/api/grant-draft') throw new ServiceError(404, 'not_found', 'This endpoint does not exist.');
@@ -386,7 +389,9 @@ export function createServer(options = {}) {
       }
       if (request.method !== 'POST') throw new ServiceError(405, 'method_not_allowed', 'Use POST to request a draft.');
       if (!configured) throw new ServiceError(503, 'not_configured', 'Live drafting is not configured yet. The app owner must set the server API key, access code and allowed site.');
-      if (!authorized(request.headers.authorization, config.accessCode)) throw new ServiceError(401, 'unauthorized', 'Enter the correct grant-writer access code.');
+      if (config.publicDemoMode) {
+        if (!origin || !origins.has(origin)) throw new ServiceError(403, 'origin_required', 'Open Artist Manager to use the demo writer.');
+      } else if (!authorized(request.headers.authorization, config.accessCode)) throw new ServiceError(401, 'unauthorized', 'Enter the correct grant-writer access code.');
       if (!/^application\/json(?:\s*;|$)/i.test(request.headers['content-type'] ?? '')) {
         throw new ServiceError(415, 'unsupported_media_type', 'Send the draft request as application/json.');
       }
@@ -399,6 +404,12 @@ export function createServer(options = {}) {
       if (admissions.length >= 5) {
         response.setHeader('Retry-After', String(Math.max(1, Math.ceil((60000 - (now - admissions[0])) / 1000))));
         throw new ServiceError(429, 'request_limit', 'The demo allows five draft requests per minute. Please wait before trying again.');
+      }
+      if (config.publicDemoMode) {
+        const day = new Date(now).toISOString().slice(0,10);
+        if (daily.day !== day) daily = { day, count: 0 };
+        if (daily.count >= config.dailyLimit) throw new ServiceError(429, 'daily_limit', 'The demo writer has reached its daily request limit. Please try again tomorrow.');
+        daily.count++;
       }
       admissions.push(now);
       active = true;

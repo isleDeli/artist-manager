@@ -18,5 +18,7 @@ services:
         value: https://isledeli.github.io
       - key: OPENAI_API_KEY
         sync: false
-      - key: GRANT_WRITER_ACCESS_CODE
-        sync: false
+      - key: PUBLIC_DEMO_MODE
+        value: "true"
+      - key: PUBLIC_DEMO_DAILY_LIMIT
+        value: "25"

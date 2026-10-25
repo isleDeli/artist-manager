@@ -6,6 +6,8 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
   process.exit(1);
 }
 const server = createServer({
+  publicDemoMode: process.env.PUBLIC_DEMO_MODE !== 'false',
+  dailyLimit: Number(process.env.PUBLIC_DEMO_DAILY_LIMIT || 25),
   apiKey: process.env.OPENAI_API_KEY,
   model: process.env.OPENAI_MODEL,
   accessCode: process.env.GRANT_WRITER_ACCESS_CODE,

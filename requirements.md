@@ -41,7 +41,7 @@ APP-04: Opportunity checklists distinguish completed and missing materials. Draf
 
 ## Deadlines and Application Tracking
 
-TRK-01: Artists can save opportunities and set an application status: interested, drafting, submitted, accepted, or declined.
+TRK-01: Artists can save opportunities and set an application status: Saved, Preparing, Ready to submit, Submitted, Awarded, or Declined. These labels supersede the earlier interested/drafting/accepted names.
 TRK-02: Status records are artist-entered progress, not confirmation from the funding organization. Changing status preserves the associated draft.
 TRK-03: Deadline displays retain the original time zone and distinguish rolling deadlines, unknown times, upcoming windows, and closed cycles. An unspecified time is never silently interpreted as midnight.
 TRK-04: Saved profiles, opportunities, drafts, and statuses remain after refreshing and reopening the application in the same browser. Cross-device persistence is outside the initial scope.
@@ -149,3 +149,14 @@ AI-12: GitHub Pages hosts the frontend; a Render Free blueprint hosts the demo b
 QA-AI-01: Verify missing/excluded facts cannot count as supported requirements; mismatched evidence, missing rows, fake excerpts and over-limit drafts are rejected.
 QA-AI-02: Verify authorization, origin restrictions, caps, rate/concurrency limits, provider refusals/incomplete responses and failures using mocked responses before any live charge.
 QA-AI-03: Future Kane coverage must verify planning inputs, disclosure consent, separate proposal review, insertion/append/explicit replacement, unchanged text on errors, tab/workspace isolation and accessible loading/error states. These are requirements, not handwritten Kane test cases.
+
+## Interactive Demo and Live Test Target — 2026-10-24
+
+DEMO-01: Portfolio offers Load Taylor’s demo portfolio, using sourced public artist facts and three attributed artworks. The homepage has no artist spotlight. Demo data is isolated from the personal workspace and a visible banner identifies demo activity on all routes.
+DEMO-02: Demo edits, selected samples, drafts and application statuses persist within the demo store. Return to my workspace restores personal saved work, and reopening the demo restores its own progress. No actual artist account, funder submission or award is implied. Unknown private eligibility facts remain unanswered.
+TEST-TARGET-01: The live frontend is https://isledeli.github.io/artist-manager/ and the backend is https://artist-manager-grant-writer.onrender.com. The backend health endpoint reports configured true; a successful live AI generation is not yet verified. Browser checks may use the demo workspace and labeled synthetic artist/project inputs; do not erase existing personal data. Backend access codes and API keys must never be included in test files, source, logs or chat. Test AI connection/error states without requesting paid generation unless the private access code is supplied securely and the user authorizes the live request.
+
+## Temporary Demo Simplification — 2026-10-24
+
+AI-DEMO-01: At the user's request, remove backend URL, access-code and provider setup fields from the artist UI. Draft application uses the configured server directly. The key remains server-only.
+AI-DEMO-02: Temporarily allow public demo drafting from the permitted site, with origin checks and per-instance concurrency/rate/daily limits. This supersedes artist-facing access-code gating for the temporary demo; usage is billed to the owner. Preserve all grounding, consent and saved-draft protections.

@@ -6,20 +6,12 @@ import { buildGrantRequest, checkedGrantResult, normalizeBackendUrl, type Contex
 import type { Application, Opportunity, Profile, WorkSample } from '../types';
 import '../grant-writer.css';
 
-let sessionAccessCode = '';
-const apiStorageKey = 'artist-manager:grant-api-url';
-function initialEndpoint() {
-  try { return localStorage.getItem(apiStorageKey) || import.meta.env.VITE_GRANT_API_URL || GRANT_API_URL; } catch { return import.meta.env.VITE_GRANT_API_URL || GRANT_API_URL; }
-}
 type Props = {
   op: Opportunity; profile: Profile; app: Application; samples: WorkSample[]; section: string; draft: string; demo: boolean;
   onDraft: (value: string) => void; onSettings: (values: Record<string, string>) => void;
 };
 
 export default function GrantWriter({ op, profile, app, samples, section, draft, demo, onDraft, onSettings }: Props) {
-  const [endpoint, setEndpoint] = useState(initialEndpoint);
-  const [accessCode, setAccessCode] = useState(sessionAccessCode);
-  const [connected, setConnected] = useState(false);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
@@ -41,39 +33,21 @@ export default function GrantWriter({ op, profile, app, samples, section, draft,
   const unanswered = request.requirements.filter(rule => rule.state === 'unknown');
   const failed = request.requirements.filter(rule => rule.state === 'not met');
 
-  const checkConnection = async () => {
-    setError(''); setBusy('Connecting…'); setConnected(false);
-    try {
-      const base = normalizeBackendUrl(endpoint.trim());
-      controller.current?.abort();
-      controller.current = new AbortController();
-      const timer = setTimeout(() => controller.current?.abort(), 120000);
-      try {
-        const response = await fetch(base + '/health', { signal: controller.current.signal });
-        const health = await response.json();
-        if (!response.ok || health.status !== 'ok' || !health.configured) throw new Error('The backend is reachable but not configured. Set its OpenAI API key and grant-writer access code in the hosting dashboard.');
-        setEndpoint(base); setConnected(true);
-        try { localStorage.setItem(apiStorageKey, base); } catch { /* Connection still works without persistence. */ }
-      } finally { clearTimeout(timer); }
-    } catch (e) { setError(e instanceof Error && e.name !== 'AbortError' ? e.message : 'The backend did not respond in time. Free instances may need a minute to wake; try Check connection again.'); }
-    finally { setBusy(''); }
-  };
-
   const generate = async () => {
     setError('');
-    if (!connected || !consent) { setError('Connect the backend and approve the selected information before drafting.'); return; }
-    if (accessCode.trim().length < 16 || accessCode.trim().startsWith('sk-')) { setError('Enter the backend access code you chose on Render, not your OpenAI API key. It must have at least 16 characters.'); return; }
+    if (!consent) { setError('Approve using the selected information before drafting.'); return; }
     if (!Number.isInteger(wordLimit) || wordLimit < 50 || wordLimit > 1500) { setError('Choose a word limit between 50 and 1,500.'); return; }
     if (!request.artist.facts.length) { setError('Add or select some artist information before requesting a draft.'); return; }
     setBusy('Planning and drafting…');
     controller.current?.abort(); controller.current = new AbortController();
     const timer = setTimeout(() => controller.current?.abort(), 120000);
     try {
-      const response = await fetch(normalizeBackendUrl(endpoint.trim()) + '/api/grant-draft', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + accessCode.trim() },
+      const response = await fetch(normalizeBackendUrl(import.meta.env.VITE_GRANT_API_URL || GRANT_API_URL) + '/api/grant-draft', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request), signal: controller.current.signal,
       });
       const payload = await response.json();
+      if (response.status === 401) throw new Error('The grant writer is being updated. Please try again shortly. Your saved answer is unchanged.');
       if (!response.ok) throw new Error(payload?.error?.message || 'The writer could not generate a draft. Your saved answer has not changed.');
       setProposal({ result: checkedGrantResult(payload, request), request });
     } catch (e) { setError(e instanceof Error && e.name !== 'AbortError' ? e.message : 'Drafting timed out. Your saved answer is unchanged; you can try again.'); }
@@ -109,23 +83,15 @@ export default function GrantWriter({ op, profile, app, samples, section, draft,
       <p className="tiny">{selectedSamples.length} selected work samples: metadata only. Images, original files and linked CV contents are not sent.</p>
       <details className="writer-context"><summary>Preview the information to send</summary>{request.artist.facts.length ? request.artist.facts.map(fact => <div key={fact.id}><strong>{fact.label}</strong><p>{fact.value}</p></div>) : <p>No artist information selected.</p>}</details>
     </fieldset>
-    <details className="writer-connection" open={!connected}>
-      <summary>{connected ? 'Backend connected · connection settings' : 'Connect your AI backend'}</summary>
-      <p className="tiny">Your OpenAI key belongs only in the backend host’s environment settings. Use the separate backend access code here.</p>
-      <label>Backend URL<input type="url" value={endpoint} disabled={!!busy} onChange={e => { setEndpoint(e.target.value); setConnected(false); setConsent(false); }} placeholder="https://your-grant-writer.onrender.com" /></label>
-      <label>Backend access code<input type="password" autoComplete="off" value={accessCode} disabled={!!busy} onChange={e => { sessionAccessCode = e.target.value; setAccessCode(e.target.value); }} placeholder="The access code you chose for this backend" /></label>
-      <button className="pill" disabled={!!busy || !endpoint.trim()} onClick={() => void checkConnection()}>Check connection</button>
-      <a className="text-link tiny" href="https://github.com/isleDeli/artist-manager/blob/main/docs/ai-backend-setup.md" target="_blank" rel="noopener noreferrer">Backend setup instructions <ArrowUpRight size={14} /></a>
-    </details>
-    <label className="writer-consent"><input type="checkbox" checked={consent} disabled={!!busy} onChange={e => setConsent(e.target.checked)} /><span>Send the selected information, question and opportunity description to this backend and OpenAI to draft this answer. API usage is billed to my OpenAI account.</span></label>
-    <button className="button" onClick={() => void generate()} disabled={!!busy || !connected || !consent}><Sparkles size={16} />{busy || 'Plan and draft this answer'}</button>
-    <p className="tiny" role="status" aria-live="polite">{busy || (connected ? 'Backend connected. Generated text will appear as a proposal before you insert it.' : 'Live AI is not connected yet. Add your backend URL above to enable drafting.')}</p>
+    <label className="writer-consent"><input type="checkbox" checked={consent} disabled={!!busy} onChange={e => setConsent(e.target.checked)} /><span>Use the selected portfolio information and application details to prepare an AI draft. I’ll review the result before using it.</span></label>
+    <button className="button" onClick={() => void generate()} disabled={!!busy || !consent}><Sparkles size={16} />{busy || 'Draft application'}</button>
+    <p className="tiny" role="status" aria-live="polite">{busy || 'Generated text appears as a proposal before you insert it. Your saved answer stays unchanged until you choose to use it.'}</p>
     {error && <p className="error-text" role="alert">{error}</p>}
     {proposal && <div className="writer-proposal">
       <p className="eyebrow">AI proposal / review before using</p>
       <h3>Writing plan</h3><p>{proposal.result.strategy}</p>
       <h3>Proposed answer</h3><pre>{proposal.result.draft}</pre>
-      <p className="tiny">{proposal.result.wordCount} words · {proposal.result.model} · Based on the selected facts at generation time. Verify all claims before submitting.</p>
+      <p className="tiny">{proposal.result.wordCount} words · Based on the selected facts at generation time. Verify all claims before submitting.</p>
       <h3>Requirement coverage</h3>
       <ul>{proposal.result.coverage.map(row => <li key={row.requirementId}><strong>{proposal.request.requirements.find(rule => rule.id === row.requirementId)?.label}</strong><span className="tag">{row.status === 'addressed' ? 'Addressed in draft' : 'Not addressed'}</span>{row.excerpt && <blockquote>{row.excerpt}</blockquote>}</li>)}</ul>
       {!proposal.result.coverage.length && <p className="tiny">No known met requirements were available to certify as addressed.</p>}

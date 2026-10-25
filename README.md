@@ -54,3 +54,5 @@ Open Portfolio and select **Load Taylor’s demo portfolio**. This loads a publi
 [Deploy to Render](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2FisleDeli%2Fartist-manager) · [Setup instructions](docs/ai-backend-setup.md)
 
 Set OPENAI_API_KEY and a separate GRANT_WRITER_ACCESS_CODE only in Render’s environment settings. Keep both private. The GitHub Pages frontend accepts the backend URL at runtime, so connecting a deployed backend does not require rebuilding the website.
+
+Temporary demo update: the artist-facing backend/access-code setup fields have been removed. The owner must manually deploy the latest commit on Render. See docs/ai-backend-setup.md for the current steps and usage limits; older access-code instructions above describe the previous flow.
