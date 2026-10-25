@@ -26,13 +26,13 @@ Open the local URL printed by Vite. `npm run build` typechecks and produces `dis
 
 ## Scope and data
 
-Portfolio and application information stays in localStorage on the current browser. There are no accounts or cross-device synchronization. Clearing browser data removes local work. Original work-sample files are not stored; only bounded thumbnails are retained. Third-party fonts and a hero video are loaded externally.
+Portfolio and application information is saved in localStorage on the current browser. If you request an AI draft, the selected text and sample metadata are sent to your configured backend and OpenAI after your approval. There are no accounts or cross-device synchronization. Clearing browser data removes local work. Original work-sample files are not stored; only bounded thumbnails are retained. Third-party fonts and a hero video are loaded externally.
 
 The catalog reflects source review on **2026-10-24**, not continuous live verification. Deadline logic uses exact source times where established and provider local calendar dates otherwise; unspecified cutoff times remain uncertain. Opening months are not converted into exact dates. Availability and eligibility are separate.
 
 Requirement match = rounded percentage of distinct reviewed applicable rules met. Unknown facts stay in the denominator with no points. Not all funder rules have been normalized; such percentages are provisional and never certify complete eligibility or predict awards. Known mandatory failures rank last. Amount sorting uses only established advertised cash amounts; historical/unconfirmed and in-kind awards have no fabricated value.
 
-Draft assistance currently assembles selected existing portfolio text locally for the artist to edit. **Live AI drafting is planned, not connected.** It requires a separate secure backend and provider configuration; never place API keys in frontend code. No application is submitted to a funder through this app.
+The workspace includes a professional AI grant writer with a requirement plan, proposed answer, evidence-linked coverage and follow-up questions. Its Node backend is implemented and needs deployment plus a server-side OpenAI key before live drafting works. See [backend setup](docs/ai-backend-setup.md). Local portfolio text assembly remains available. No application is submitted to a funder through this app.
 
 ## Validation
 
@@ -48,3 +48,9 @@ Repository: https://github.com/isleDeli/artist-manager
 ## Demo with Taylor Smalls
 
 Open Portfolio and select **Load Taylor’s demo portfolio**. This loads a public-source bio/practice summary and three credited artworks into the app’s normal profile, matching and application flows. Unknown private eligibility facts stay blank. Demo changes persist in a separate browser workspace; **Return to my workspace** restores your personal profile and drafts. This is demonstration data, not Taylor’s own account or actual applications. See docs/demo-profile.md for sources.
+
+## AI backend
+
+[Deploy to Render](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2FisleDeli%2Fartist-manager) · [Setup instructions](docs/ai-backend-setup.md)
+
+Set OPENAI_API_KEY and a separate GRANT_WRITER_ACCESS_CODE only in Render’s environment settings. Keep both private. The GitHub Pages frontend accepts the backend URL at runtime, so connecting a deployed backend does not require rebuilding the website.

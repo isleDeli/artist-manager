@@ -137,3 +137,15 @@ QA-MATCH-06: Verify that opening a score reveals the met/not-met/unknown breakdo
 QA-MATCH-07: Verify that uploading work samples, completing a checklist or editing a draft does not change artist fit unless an underlying profile or project fact used by a requirement changes.
 
 Retain Kane's generated requirement links and evidence for these behaviors. Report actual coverage and failures, fix the implementation and rerun affected checks. Generation and execution have not been performed for this addition.
+
+## Implemented AI Grant Writer — 2026-10-24
+
+AI-07: The workspace provides a professional arts grant-writing plan and proposed answer based on selected artist/project facts, opportunity description, exact question and reviewed rules. Additional pasted guidelines are reference material; missing facts generate follow-up questions/placeholders rather than invented claims.
+AI-08: Review each known met requirement in coverage, using only its supplied supporting facts and a literal excerpt from the proposed draft when addressed. Unmet/unknown requirements cannot become supported coverage claims. Structural checks do not certify prose truth, full eligibility or funding.
+AI-09: Respect the artist's chosen word limit, label unverified default limits, show proposal separately and preserve saved text until explicit insert/append/replace. Failures and invalid outputs leave saved answers intact.
+AI-10: A separate Node server calls OpenAI Responses with server-side credentials and store:false. Require a private backend access code, exact-origin CORS, request/response caps, request timeout and limited concurrency/admission. No automatic paid retries and no text/key logging.
+AI-11: Preview selected inputs and require per-request disclosure consent. Send text and selected sample metadata only; never original images, browser API keys or fetched CV contents. Sensitive unanswered facts remain unknown.
+AI-12: GitHub Pages hosts the frontend; a Render Free blueprint hosts the demo backend after the owner sets secrets directly in Render. Display disconnected status until the backend is configured. The backend URL is public; keys/access code must never be supplied through chat.
+QA-AI-01: Verify missing/excluded facts cannot count as supported requirements; mismatched evidence, missing rows, fake excerpts and over-limit drafts are rejected.
+QA-AI-02: Verify authorization, origin restrictions, caps, rate/concurrency limits, provider refusals/incomplete responses and failures using mocked responses before any live charge.
+QA-AI-03: Future Kane coverage must verify planning inputs, disclosure consent, separate proposal review, insertion/append/explicit replacement, unchanged text on errors, tab/workspace isolation and accessible loading/error states. These are requirements, not handwritten Kane test cases.

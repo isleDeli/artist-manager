@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: artist-manager-grant-writer
+    runtime: node
+    plan: free
+    autoDeployTrigger: off
+    buildCommand: npm ci --omit=dev
+    startCommand: node server/index.mjs
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24.21.0"
+      - key: OPENAI_MODEL
+        value: gpt-5.6-terra
+      - key: ALLOWED_ORIGIN
+        value: https://isledeli.github.io
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GRANT_WRITER_ACCESS_CODE
+        sync: false
